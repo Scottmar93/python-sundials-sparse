@@ -48,7 +48,7 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 	${CC} ${CFLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
-all: dense
+all: sparse
 
 my_simple_example: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
@@ -62,28 +62,11 @@ python_shared_example: ${OBJECTS}
 	  ${CC} -FPIC -shared -o $${i}.so $${i}.o ${OBJECTS_DEPENDENCIES} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
 	done
 
-dense:
-	# @for i in ${EXAMPLES} ; do \
-	#   echo "${CC} -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` -I/usr/include/python3.6m -o $${i}`python3-config --extension-suffix`${INCLUDES}$ ${i}.o ${OBJECTS_DEPENDENCIES} ${CFLAGS} ${LDFLAGS}  -L${libdir} ${LIBRARIES} ${LINKFLAGS} "; \
-	#   ${CC} -O3 -Wall -shared -std=c++11 -fPIC -I/usr/include/python3.6m `python3 -m pybind11 --includes` ${INCLUDES}$ ${i}.o ${OBJECTS_DEPENDENCIES} ${LDFLAGS}  -L${libdir} ${LIBRARIES} ${LINKFLAGS} -o $${i}`python3-config --extension-suffix`;
-	# done
-	# g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` -I/home/scott/Projects/ida_test/sundials/instdir/include -o sundials`python3-config --extension-suffix` my_simple_example.cpp residual.c jacobian.c events.c -L/home/scott/Projects/ida_test/sundials/instdir/lib -lsundials_idas -lsundials_nvecserial -lm /usr/lib/x86_64-linux-gnu/librt.so -lblas -Wl,-rpath,/home/scott/Projects/ida_test/sundials/instdir/lib;
+sparse:
+	g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` -I/home/scott/Projects/sparse-test/sundials/instdir/include -I/home/scott/Projects/sparse-test/SuiteSparse/KLU/Include -I/home/scott/Projects/sparse-test/SuiteSparse/AMD/Include -I/home/scott/Projects/sparse-test/SuiteSparse/COLAMD/Include -I/home/scott/Projects/sparse-test/SuiteSparse/BTF/Include -I/home/scott/Projects/sparse-test/SuiteSparse/SuiteSparse_config -o sundials`python3-config --extension-suffix` sundials_sparse.cpp -L/home/scott/Projects/sparse-test/sundials/instdir/lib -lsundials_sunmatrixsparse -lsundials_ida -lsundials_nvecserial -lm /usr/lib/x86_64-linux-gnu/librt.so -lblas -Wl,-rpath,/home/scott/Projects/sparse-test/sundials/instdir/lib -lsundials_sunlinsolklu /home/scott/Projects/sparse-test/SuiteSparse/KLU/Lib/libklu.a /home/scott/Projects/sparse-test/SuiteSparse/AMD/Lib/libamd.a /home/scott/Projects/sparse-test/SuiteSparse/COLAMD/Lib/libcolamd.a /home/scott/Projects/sparse-test/SuiteSparse/BTF/Lib/libbtf.a /home/scott/Projects/sparse-test/SuiteSparse/SuiteSparse_config/libsuitesparseconfig.a;
 
-	# meaning of compiler args
-	# g++ compiler, with level 3 optimisation (O3), with all warnings on (-Wall), to create a shared binary, using the c++11 standard
-	# (not sure what -fPIC is)
-	# `pthon3... includes` provides the address of the pybind header files
-	# address of the sundials header files
-	# -o sundials`pyth...` produces the outputed shared library with the name sundials.so.pyt... 
-	# my_simple_example.cpp is the source code 
-	# address of sundials libraries
-	# 
-	g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` -I/home/scott/Projects/ida_test/sundials/instdir/include -o sundials`python3-config --extension-suffix` sundials_dense.cpp -L/home/scott/Projects/ida_test/sundials/instdir/lib -lsundials_idas -lsundials_nvecserial -lm /usr/lib/x86_64-linux-gnu/librt.so -lblas -Wl,-rpath,/home/scott/Projects/ida_test/sundials/instdir/lib;
-
-just_res: 
-	# g++ -O3 -Wall -shared -I/home/scott/Projects/ida_test/sundials/instdir/include -o residual.so residual.c -L/home/scott/Projects/ida_test/sundials/instdir/lib -lsundials_idas -lsundials_nvecserial -lm /usr/lib/x86_64-linux-gnu/librt.so -lblas -Wl,-rpath,/home/scott/Projects/ida_test/sundials/instdir/lib;
-	g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` -I/home/scott/Projects/ida_test/sundials/instdir/include -o residual`python3-config --extension-suffix` residual.c -L/home/scott/Projects/ida_test/sundials/instdir/lib -lsundials_idas -lsundials_nvecserial -lm /usr/lib/x86_64-linux-gnu/librt.so -lblas -Wl,-rpath,/home/scott/Projects/ida_test/sundials/instdir/lib;
-
+ida_rob_klu: 
+	g++ -O3 -Wall -std=c++11 -fPIC -I/home/scott/Projects/sparse-test/sundials/instdir/include -I/home/scott/Projects/sparse-test/SuiteSparse/KLU/Include -I/home/scott/Projects/sparse-test/SuiteSparse/AMD/Include -I/home/scott/Projects/sparse-test/SuiteSparse/COLAMD/Include -I/home/scott/Projects/sparse-test/SuiteSparse/BTF/Include -I/home/scott/Projects/sparse-test/SuiteSparse/SuiteSparse_config -o ida_robs idaRoberts_klu.c -L/home/scott/Projects/sparse-test/sundials/instdir/lib -lsundials_sunmatrixsparse -lsundials_ida -lsundials_nvecserial -lm /usr/lib/x86_64-linux-gnu/librt.so -lblas -Wl,-rpath,/home/scott/Projects/sparse-test/sundials/instdir/lib -lsundials_sunlinsolklu /home/scott/Projects/sparse-test/SuiteSparse/KLU/Lib/libklu.a /home/scott/Projects/sparse-test/SuiteSparse/AMD/Lib/libamd.a /home/scott/Projects/sparse-test/SuiteSparse/COLAMD/Lib/libcolamd.a /home/scott/Projects/sparse-test/SuiteSparse/BTF/Lib/libbtf.a /home/scott/Projects/sparse-test/SuiteSparse/SuiteSparse_config/libsuitesparseconfig.a;
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}
 
